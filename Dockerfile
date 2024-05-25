@@ -1,15 +1,10 @@
-#step 1: Build React App
-FROM node:alpine3.18 as build
+FROM node:14 as builder
 WORKDIR /app
 COPY package.json .
 RUN npm install
 COPY . .
 RUN npm run build
 
-#step 2: Server with Nginx
-FROM nginx:1.23-alpine
-WORKDIR /user/share/nginx/html
-RUN rm -rf *
-COPY --from=build /app/build .
+FROM nginx
 EXPOSE 80
-ENTRYPOINT [ "nginx", "-g", "daemon off;" ]
+COPY --from=builder /app/build /user/share/nginx/html
